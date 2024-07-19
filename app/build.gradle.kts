@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-kapt")
 }
 
 android {
@@ -36,6 +37,26 @@ android {
 }
 
 dependencies {
+    //exoPlayer
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.session)
+
+    //dagger
+    implementation (libs.dagger)
+    kapt (libs.dagger.compiler)
+
+    //coil
+    implementation(libs.coil)
+
+    //coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    //viewModel
+    implementation(libs.androidx.fragment.ktx.v180)
+    implementation (libs.androidx.fragment.ktx)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
