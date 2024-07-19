@@ -1,7 +1,9 @@
 package com.example.musicplayermerk.presentation.view
 
-import android.content.ContentResolver
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,107 +14,79 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import coil.load
 import com.example.musicplayermerk.R
-import com.example.musicplayermerk.di.appComponent
-import com.example.musicplayermerk.domain.Song
+import com.example.musicplayermerk.appComponent
 import com.example.musicplayermerk.presentation.playerViewModel.PlayerViewModel
 import com.example.musicplayermerk.presentation.playerViewModel.ViewModelFactory
-import com.example.musicplayermerk.presentation.state.ListState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 class PlayerFragment : Fragment() {
-    private lateinit var player: ExoPlayer
     private val viewModel by viewModels<PlayerViewModel> { viewmodelFactory }
-    private lateinit var title: TextView
-    private lateinit var artist: TextView
-    private lateinit var poster: ImageView
-    private lateinit var next: ImageView
-    private lateinit var previous: ImageView
-    private lateinit var start: ImageView
-    private lateinit var stop: ImageView
+    private lateinit var views: Views
 
     @Inject
     lateinit var viewmodelFactory: ViewModelFactory
+
     override fun onAttach(context: Context) {
         context.appComponent.inject(this)
         super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        player = ExoPlayer.Builder(requireContext()).build()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_player, container, false)
-    }
+    ): View = inflater.inflate(R.layout.fragment_player, container, false)
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        title = view.findViewById(R.id.tv_title)
-        artist = view.findViewById(R.id.tv_artist)
-        poster = view.findViewById(R.id.picture)
-        next = view.findViewById(R.id.iv_next)
-        previous = view.findViewById(R.id.iv_previous)
-        start = view.findViewById(R.id.iv_start)
-        stop = view.findViewById(R.id.iv_stop)
+        views = Views(view)
 
-        next.setOnClickListener {
-            if (player.hasNextMediaItem()) {
-                player.seekToNext()
-                player.prepare()
-                player.play()
-            }
+        views.next.setOnClickListener {
+            viewModel.next()
         }
-        previous.setOnClickListener {
-            if (player.hasPreviousMediaItem()) {
-                player.seekToPrevious()
-                player.prepare()
-                player.play()
-            }
+        views.previous.setOnClickListener {
+            viewModel.previous()
         }
 
-        start.setOnClickListener {
-            player.prepare()
-            player.play()
-            start.isVisible = false
-            stop.isVisible = true
+        views.start.setOnClickListener {
+            viewModel.play()
         }
-        stop.setOnClickListener {
-            stop.isVisible = false
-            start.isVisible = true
-            player.stop()
+        views.stop.setOnClickListener {
+            viewModel.stop()
         }
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.songList.onEach { state ->
-            if (state is ListState.SongList) {
-                val list = mutableListOf<MediaItem>()
-                for (i in state.items.indices) {
-                    val path =
-                        "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context?.packageName}/${state.items[i].song}"
-                    list.add(MediaItem.fromUri(path))
-                    player.addMediaItem(list[i])
-                }
-                bindSongData(state.items[player.currentMediaItemIndex])
-            }
+        viewModel.currentState.onEach { state ->
+            bindTrackInfo(state.song.uri)
+            views.start.isVisible = !state.isPlaying
+            views.stop.isVisible = state.isPlaying
         }.launchIn(lifecycleScope)
     }
 
-    private fun bindSongData(song: Song) {
-        title.text = song.title
-        artist.text = song.singer
-        poster.load(song.poster)
+    private fun bindTrackInfo(uri: Uri) {
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(context, uri)
+        val image = retriever.embeddedPicture
+        val decodeImage = image?.let { BitmapFactory.decodeByteArray(image, 0, it.size) }
+        views.title.text = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+        views.artist.text = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+        views.poster.setImageBitmap(decodeImage)
+
+    }
+
+    class Views(view: View) {
+        val next: ImageView = view.findViewById(R.id.iv_next)
+        val title: TextView = view.findViewById(R.id.tv_title)
+        val artist: TextView = view.findViewById(R.id.tv_artist)
+        var poster: ImageView = view.findViewById(R.id.picture)
+        val previous: ImageView = view.findViewById(R.id.iv_previous)
+        val start: ImageView = view.findViewById(R.id.iv_start)
+        val stop: ImageView = view.findViewById(R.id.iv_stop)
     }
 }
