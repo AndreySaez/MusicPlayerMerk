@@ -41,7 +41,5 @@ class SongDataSource @Inject constructor() {
 
     )
 
-    fun getSongsData(): SongDataSource {
-        return SongDataSource()
-    }
+    fun getSongsData(): SongDataSource = SongDataSource()
 }
