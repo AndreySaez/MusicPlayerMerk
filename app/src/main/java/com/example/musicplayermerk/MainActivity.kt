@@ -2,7 +2,7 @@ package com.example.musicplayermerk
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.musicplayermerk.presentation.view.PlayerFragment
+import com.example.musicplayermerk.presentation.view.player.PlayerFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

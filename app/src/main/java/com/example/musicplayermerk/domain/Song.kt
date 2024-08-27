@@ -1,9 +1,11 @@
 package com.example.musicplayermerk.domain
 
+import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 
 data class Song(
-    val song:Int,
+    val song: Int,
     val title: String,
     val singer: String,
     var uri: Uri,
@@ -32,5 +34,13 @@ data class Song(
         result = 31 * result + uri.hashCode()
         result = 31 * result + (poster?.contentHashCode() ?: 0)
         return result
+    }
+}
+
+object UriParse {
+    fun uriFromSong(context: Context, song: Song): Uri {
+        return Uri.parse(
+            "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/${song.song}"
+        )
     }
 }

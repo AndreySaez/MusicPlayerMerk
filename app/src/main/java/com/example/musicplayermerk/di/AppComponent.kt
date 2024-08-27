@@ -2,22 +2,26 @@ package com.example.musicplayermerk.di
 
 import android.content.Context
 import com.example.musicplayermerk.data.di.PlayerDataModule
-import com.example.musicplayermerk.presentation.di.PlayerPresentationModule
-import com.example.musicplayermerk.presentation.view.PlayerFragment
+import com.example.musicplayermerk.domain.repository.SongRepository
+import com.example.musicplayermerk.presentation.di.playerdi.PlayerServiceModule
+import com.example.musicplayermerk.presentation.playerService.PlayerService
 import dagger.BindsInstance
 import dagger.Component
 
 @Component(
     modules = [
         PlayerDataModule::class,
-        PlayerPresentationModule::class
+        PlayerServiceModule::class
     ]
 )
-interface AppComponent {
+interface AppComponent: AppDependencies {
     @Component.Factory
     interface Factory {
         fun create(@BindsInstance context: Context): AppComponent
     }
+    fun inject(service: PlayerService)
+}
 
-    fun inject(fragment: PlayerFragment)
+interface AppDependencies {
+    fun repository(): SongRepository
 }
