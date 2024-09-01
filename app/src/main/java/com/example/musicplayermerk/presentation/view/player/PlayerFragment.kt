@@ -69,6 +69,25 @@ class PlayerFragment : Fragment() {
         views.stop.setOnClickListener {
             viewModel.stop()
         }
+        var userIsSeeking = false
+        var userSelectedPosition = 0
+        views.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    userSelectedPosition = progress
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                userIsSeeking = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                userIsSeeking = false
+                viewModel.changePosition(userSelectedPosition)
+            }
+
+        })
     }
 
     override fun onStart() {

@@ -47,7 +47,9 @@ class SongsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recycler = view.findViewById(R.id.recycler_view)
-        adapter = SongsListAdapter()
+        adapter = SongsListAdapter {
+            viewModel.seekToSong(it)
+        }
         recycler.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         recycler.adapter = adapter
         recycler.layoutManager = LinearLayoutManager(context)
