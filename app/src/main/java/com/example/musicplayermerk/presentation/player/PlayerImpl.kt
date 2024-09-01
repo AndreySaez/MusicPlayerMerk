@@ -131,6 +131,26 @@ class PlayerImpl @Inject constructor(
         }
     }
 
+    override fun seekTo(progress: Int) {
+        exoPlayer.seekTo(progress.toLong())
+    }
+
+    override fun seekToMediaItem(mediaItem: Song, forcePlay: Boolean) {
+        val newSongIndex = songs.indexOf(mediaItem)
+        if (newSongIndex == -1) return
+        if (exoPlayer.currentMediaItemIndex == newSongIndex && exoPlayer.isPlaying) {
+            exoPlayer.pause()
+            return
+        }
+        if (exoPlayer.currentMediaItemIndex != newSongIndex) {
+            exoPlayer.seekToDefaultPosition(newSongIndex)
+        }
+        if (forcePlay && !exoPlayer.isPlaying) {
+            exoPlayer.play()
+        }
+
+    }
+
     override fun destroy() {
         exoPlayer.release()
     }
@@ -171,7 +191,7 @@ class PlayerImpl @Inject constructor(
             setUseFastForwardAction(false)
             setUseRewindAction(false)
             setColorized(true)
-            setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             setPriority(NotificationCompat.PRIORITY_MAX)
             setPlayer(exoPlayer)
         }

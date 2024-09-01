@@ -34,6 +34,10 @@ class PlayerViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun changePosition(progress: Int) {
+        player?.seekTo(progress)
+    }
+
     fun play() {
         player?.play()
     }

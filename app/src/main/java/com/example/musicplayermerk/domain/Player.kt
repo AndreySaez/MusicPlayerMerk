@@ -15,6 +15,8 @@ interface Player {
     fun destroy()
 
     fun setupNotification(listener: PlayerNotificationListener)
+    fun seekTo(progress: Int)
+    fun seekToMediaItem(mediaItem: Song, forcePlay: Boolean = true)
 }
 
 data class PlayerState(

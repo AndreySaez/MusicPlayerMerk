@@ -12,7 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayermerk.R
 import com.example.musicplayermerk.domain.Song
 
-class SongsListAdapter : RecyclerView.Adapter<SongsListViewHolder>() {
+class SongsListAdapter(
+    private val clickListener: (Song) -> Unit
+) : RecyclerView.Adapter<SongsListViewHolder>() {
     private var songsList = listOf<Song>()
     private var selectedItemPos = -1
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongsListViewHolder {
@@ -46,6 +48,9 @@ class SongsListAdapter : RecyclerView.Adapter<SongsListViewHolder>() {
 
     override fun onBindViewHolder(holder: SongsListViewHolder, position: Int) {
         holder.bindData(getItem(position))
+        holder.itemView.setOnClickListener {
+            clickListener(getItem(position))
+        }
         if (selectedItemPos == position) {
             holder.itemView.setBackgroundColor(Color.LTGRAY)
         } else {
